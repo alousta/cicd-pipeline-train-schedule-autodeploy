@@ -60,6 +60,7 @@ pipeline {
             }
             steps {
                 script {
+                    sleep(time: 5)
                     def response = httpRequest (
                         url: "hhtp://$KUBE_MASTER_IP:8081/",
                         timeout: 30
@@ -70,8 +71,6 @@ pipeline {
                 }
             }
         }    
-                        
-              
         stage('DeployToProduction') {
             when {
                 branch 'master'
@@ -84,14 +83,16 @@ pipeline {
                     enableConfigSubstitution: true
                 )
             }
-            post {
-                cleanup {
-                     kubernetesDeploy(
-                         kubeconfigId: 'kubeconfig',
-                         configs: 'train-schedule-kube-canary.yml',
-                         enableConfigSubstitution: true
-                     )    
+        }
+    }  
+    post {
+        cleanup {
+            kubernetesDeploy(
+                kubeconfigId: 'kubeconfig',
+                configs: 'train-schedule-kube-canary.yml',
+                enableConfigSubstitution: true
+            )    
         }
     }
 }
-    }
+
